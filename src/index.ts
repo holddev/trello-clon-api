@@ -3,6 +3,7 @@ import { env } from 'hono/adapter'
 import { Env } from './types/types'
 import { createDbClient } from './config/drizzle'
 import { userRouter } from './routers/user'
+import { boardRouter } from './routers/board'
 
 const app = new Hono()
 
@@ -35,5 +36,6 @@ app.get('/test', async (c) => {
 })
 
 app.route('/users', userRouter())
+app.route('/boards', boardRouter())
 
 export default app
