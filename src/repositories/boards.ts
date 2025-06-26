@@ -20,6 +20,7 @@ export class BoardRepository {
       title: boards.title,
       is_favorite: boards.is_favorite,
       created_at: boards.created_at,
+      order: boards.order,
       cols: sql<number>`(
           SELECT COALESCE(COUNT(*),0)
           FROM columns
