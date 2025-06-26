@@ -9,6 +9,7 @@ export const boards = sqliteTable("boards", {
     .references(() => users.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   is_favorite: integer("is_favorite", { mode: "boolean" }).default(false),
+  order: integer("order").notNull().default(0),
   created_at: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
