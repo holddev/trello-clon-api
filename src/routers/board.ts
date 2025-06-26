@@ -35,23 +35,20 @@ export const boardRouter = () => {
     return c.json(result.data, result.status);
   });
 
-  router.patch("/:id", async (c) => {
+  router.patch("/reorder", async (c) => {
     const db = c.get("db");
     const service = new BoardController(new BoardRepository(db));
 
-    const id = c.req.param("id");
     const userId = c.req.query("userId") as string; //prueba
+    const data: Partial<newBoard>[] = await c.req.json();
 
-    if (!id) return c.json({ error: "Board ID is required" }, 400);
-    const data: Partial<newBoard> = await c.req.json();
-
-    const result = await service.updateField(userId, Number(id), data);
+    const result = await service.reorder(userId, data)
 
     if (!result.ok) {
       return c.json({ error: result.message }, result.status);
     }
 
-    return c.json(result.data, result.status);
+    return c.json({ message: result.message }, result.status);
   })
 
   router.get("/:id", async (c) => {
@@ -64,6 +61,25 @@ export const boardRouter = () => {
     if (!id) return c.json({ error: "Board ID is required" }, 400);
 
     const result = await service.findByIdWithDetails(userId, Number(id));
+
+    if (!result.ok) {
+      return c.json({ error: result.message }, result.status);
+    }
+
+    return c.json(result.data, result.status);
+  })
+
+  router.patch("/:id", async (c) => {
+    const db = c.get("db");
+    const service = new BoardController(new BoardRepository(db));
+
+    const id = c.req.param("id");
+    const userId = c.req.query("userId") as string; //prueba
+
+    if (!id) return c.json({ error: "Board ID is required" }, 400);
+    const data: Partial<newBoard> = await c.req.json();
+
+    const result = await service.updateField(userId, Number(id), data);
 
     if (!result.ok) {
       return c.json({ error: result.message }, result.status);
