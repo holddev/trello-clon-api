@@ -10,6 +10,7 @@ export class BoardController {
       const result = await this.boardRepository.create(data);
       return { ok: true, data: result, status: 201 };
     } catch (error) {
+      console.error("Error creating board:", error);
       return { ok: false, data: null, message: "Internal Server Error", status: 500 };
     }
   }
@@ -20,6 +21,7 @@ export class BoardController {
       if (!result || result.length === 0) {
         return { ok: false, data: null, message: "No boards found", status: 404 };
       }
+
       return { ok: true, data: result, status: 200 };
     } catch (error) {
       return { ok: false, data: null, message: "Internal Server Error", status: 500 };
@@ -34,6 +36,21 @@ export class BoardController {
       }
       return { ok: true, data: result, status: 200 };
     } catch (error) {
+      console.error("Error updating board:", error);
+      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+    }
+  }
+
+  async reorder(userId: string, data: Partial<Board>[]): Promise<ControllerResponse<null>> {
+    try {
+      const results = await Promise.all(data.map(async (board) => {
+        if (!board.id) return board
+        return this.boardRepository.updateField(userId, board.id, { order: board.order });
+      }));
+
+      return { ok: true, data: null, message: "Boards reordered successfully", status: 200 };
+    } catch (error) {
+      console.error("Error reordering boards:", error);
       return { ok: false, data: null, message: "Internal Server Error", status: 500 };
     }
   }
