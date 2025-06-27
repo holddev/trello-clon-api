@@ -24,6 +24,7 @@ export class BoardController {
 
       return { ok: true, data: result, status: 200 };
     } catch (error) {
+      console.error("Error fetching boards:", error);
       return { ok: false, data: null, message: "Internal Server Error", status: 500 };
     }
   }
@@ -63,6 +64,7 @@ export class BoardController {
       }
       return { ok: true, data: result, status: 200 };
     } catch (error) {
+      console.error("Error fetching board details:", error);
       return { ok: false, data: null, message: "Internal Server Error", status: 500 };
     }
   }
@@ -75,6 +77,7 @@ export class BoardController {
       }
       return { ok: true, data: result, message: "Board deleted successfully", status: 200 };
     } catch (error) {
+      console.error("Error deleting board:", error);
       return { ok: false, data: null, message: "Internal Server Error", status: 500 };
     }
   }
