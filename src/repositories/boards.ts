@@ -47,7 +47,7 @@ export class BoardRepository {
 
     const resultCols = await Promise.all(
       cols.map(async (col) => {
-        const resultTasks = await this.db.select().from(tasks).where(eq(tags.task_id, col.id));
+        const resultTasks = await this.db.select().from(tasks).where(eq(tasks.column_id, col.id));
 
         const tasksWithTags = await Promise.all(
           resultTasks.map(async (task) => {
