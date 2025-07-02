@@ -35,4 +35,14 @@ export class TaskController {
     }
   }
 
+  async reorderTasks(userId: string, data: Partial<Task>[]): Promise<ControllerResponse<null>> {
+    try {
+      await this.taskRepository.reorderTasks(userId, data);
+      return { ok: true, data: null, message: "Tasks reordered successfully", status: 200 };
+    } catch (error) {
+      console.error("Error reordering tasks:", error);
+      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+    }
+  }
+
 }

@@ -21,6 +21,21 @@ export const TaskRouter = () => {
     return c.json(result.data, result.status)
   })
 
+  router.patch("/reorder", async (c) => {
+    const db = c.get("db")
+    const services = new TaskController(new TaskRepository(db))
+    const body: Partial<Task>[] = await c.req.json()
+    const userId = c.req.query("userId") as string // prueba
+
+    const result = await services.reorderTasks(userId, body)
+
+    if (!result.ok) {
+      return c.json({ error: result.message }, result.status)
+    }
+
+    return c.json(result.data, result.status)
+  })
+
   router.patch("/:id", async (c) => {
     const db = c.get("db")
     const services = new TaskController(new TaskRepository(db))
@@ -51,7 +66,6 @@ export const TaskRouter = () => {
 
     return c.json(result.data, result.status)
   })
-
 
   return router
 }
