@@ -7,30 +7,36 @@ import { boards } from "../models/boards";
 export class TaskRepository {
   constructor(private db: LibSQLDatabase) { }
 
-  private async columnBelongsToUser(columnId: number, userId: string) {
+  private async authorizeColumnAccess(userId: string, columnId: number): Promise<void> {
     const res = await this.db
       .select({ id: columns.id })
       .from(columns)
       .innerJoin(boards, eq(columns.board_id, boards.id))
-      .where(and(eq(columns.id, columnId), eq(boards.user_id, userId)));
-    return res.length > 0;
+      .where(and(eq(columns.id, columnId), eq(boards.user_id, userId)))
+      .limit(1);
+
+    if (!res.length) {
+      throw new Error("Unauthorized: column does not belong to user.");
+    }
   }
 
-  private async taskBelongsToUser(taskId: number, userId: string) {
+  /** Lanza si la tarea no pertenece al usuario */
+  private async authorizeTaskAccess(userId: string, taskId: number): Promise<void> {
     const res = await this.db
       .select({ id: tasks.id })
       .from(tasks)
       .innerJoin(columns, eq(tasks.column_id, columns.id))
       .innerJoin(boards, eq(columns.board_id, boards.id))
-      .where(and(eq(tasks.id, taskId), eq(boards.user_id, userId)));
-    return res.length > 0;
+      .where(and(eq(tasks.id, taskId), eq(boards.user_id, userId)))
+      .limit(1);
+
+    if (!res.length) {
+      throw new Error("Unauthorized: task does not belong to user.");
+    }
   }
 
-
   async create(userId: string, data: newTask) {
-    if (!(await this.columnBelongsToUser(data.column_id, userId))) {
-      throw new Error("Unauthorized: column does not belong to user");
-    }
+    await this.authorizeColumnAccess(userId, data.column_id);
 
     const insertedTasks = await this.db
       .insert(tasks)
@@ -67,9 +73,7 @@ export class TaskRepository {
 
   async update(userId: string, taskId: number, data: Partial<Task>) {
 
-    if (!(await this.taskBelongsToUser(taskId, userId))) {
-      throw new Error("Unauthorized: task does not belong to user");
-    }
+    await this.authorizeTaskAccess(userId, taskId);
 
     const { tags: tagsEdit, ...taskFields } = data;
 
@@ -105,12 +109,22 @@ export class TaskRepository {
 
   async delete(userId: string, taskId: number) {
 
-    if (!(await this.taskBelongsToUser(taskId, userId))) {
-      throw new Error("Unauthorized: task does not belong to user");
-    }
+    await this.authorizeTaskAccess(userId, taskId);
 
     const result = await this.db.delete(tasks).where(eq(tasks.id, taskId)).returning();
     return result[0];
+  }
+
+  async reorderTasks(userId: string, changes: Partial<Task>[]) {
+    for (const change of changes) {
+      const { id, column_id, position } = change;
+      if (!id) return
+
+      await this.update(userId, id, {
+        column_id,
+        position
+      })
+    }
   }
 
 }
