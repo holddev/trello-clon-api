@@ -1,6 +1,8 @@
 import { Board, newBoard } from "../models/boards";
 import { BoardRepository } from "../repositories/boards";
 import { ControllerResponse } from "../types/types";
+import { handleControllerError } from "../utils/utils";
+import { NotFoundError } from "../errors/error";
 
 export class BoardController {
   constructor(private boardRepository: BoardRepository) { }
@@ -11,7 +13,8 @@ export class BoardController {
       return { ok: true, data: result, status: 201 };
     } catch (error) {
       console.error("Error creating board:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { status, message } = handleControllerError(error)
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -19,13 +22,14 @@ export class BoardController {
     try {
       const result = await this.boardRepository.findAll(userId);
       if (!result || result.length === 0) {
-        return { ok: false, data: null, message: "No boards found", status: 404 };
+        throw new NotFoundError("No boards found")
       }
 
       return { ok: true, data: result, status: 200 };
     } catch (error) {
       console.error("Error fetching boards:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { status, message } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -33,12 +37,13 @@ export class BoardController {
     try {
       const result = await this.boardRepository.updateField(userId, id, data);
       if (!result) {
-        return { ok: false, data: null, message: "Board not found", status: 404 };
+        throw new NotFoundError("Board not found")
       }
       return { ok: true, data: result, status: 200 };
     } catch (error) {
       console.error("Error updating board:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { status, message } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -51,8 +56,8 @@ export class BoardController {
 
       return { ok: true, data: null, message: "Boards reordered successfully", status: 200 };
     } catch (error) {
-      console.error("Error reordering boards:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { status, message } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -60,12 +65,12 @@ export class BoardController {
     try {
       const result = await this.boardRepository.findByIdWithColumnsAndTasks(userId, id);
       if (!result) {
-        return { ok: false, data: null, message: "Board not found", status: 404 };
+        throw new NotFoundError("Board not Found")
       }
       return { ok: true, data: result, status: 200 };
     } catch (error) {
-      console.error("Error fetching board details:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { message, status } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -73,12 +78,13 @@ export class BoardController {
     try {
       const result = await this.boardRepository.delete(userId, id);
       if (!result) {
-        return { ok: false, data: null, message: "Board not found", status: 404 };
+        throw new NotFoundError("Board not found")
       }
       return { ok: true, data: result, message: "Board deleted successfully", status: 200 };
     } catch (error) {
       console.error("Error deleting board:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { message, status } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 
