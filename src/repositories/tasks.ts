@@ -3,6 +3,7 @@ import { newTask, tags, Task, tasks } from "../models/tasks";
 import { and, eq } from "drizzle-orm";
 import { columns } from "../models/columns";
 import { boards } from "../models/boards";
+import { UnauthorizedError } from "../errors/error";
 
 export class TaskRepository {
   constructor(private db: LibSQLDatabase) { }
@@ -16,11 +17,10 @@ export class TaskRepository {
       .limit(1);
 
     if (!res.length) {
-      throw new Error("Unauthorized: column does not belong to user.");
+      throw new UnauthorizedError("Unauthorized: column does not belong to user.");
     }
   }
 
-  /** Lanza si la tarea no pertenece al usuario */
   private async authorizeTaskAccess(userId: string, taskId: number): Promise<void> {
     const res = await this.db
       .select({ id: tasks.id })
@@ -31,7 +31,7 @@ export class TaskRepository {
       .limit(1);
 
     if (!res.length) {
-      throw new Error("Unauthorized: task does not belong to user.");
+      throw new UnauthorizedError("Unauthorized: task does not belong to user.");
     }
   }
 
