@@ -18,7 +18,7 @@ export const authenticateUser = async (c: Context, next: Next) => {
     if (!result) {
       throw new UnauthorizedError('Unauthorized: user does not exist.');
     }
-
+    c.set('userId', result.id);
     await next();
   } catch (error) {
     const { message, status } = handleControllerError(error);
