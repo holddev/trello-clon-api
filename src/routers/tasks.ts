@@ -14,11 +14,7 @@ export const TaskRouter = () => {
 
     const result = await services.create(userId, body)
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status)
-    }
-
-    return c.json(result.data, result.status)
+    return c.json(result, result.status)
   })
 
   router.patch("/reorder", async (c) => {
@@ -29,11 +25,7 @@ export const TaskRouter = () => {
 
     const result = await services.reorderTasks(userId, body)
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status)
-    }
-
-    return c.json(result.data, result.status)
+    return c.json(result, result.status)
   })
 
   router.patch("/:id", async (c) => {
@@ -45,11 +37,7 @@ export const TaskRouter = () => {
 
     const result = await services.update(userId, taskId, taskUpdated)
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status)
-    }
-
-    return c.json(result.data, result.status)
+    return c.json(result, result.status)
   })
 
   router.delete("/:id", async (c) => {
@@ -60,11 +48,7 @@ export const TaskRouter = () => {
 
     const result = await services.delete(userId, taskId)
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status)
-    }
-
-    return c.json(result.data, result.status)
+    return c.json(result, result.status)
   })
 
   return router
