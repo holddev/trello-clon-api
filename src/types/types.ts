@@ -3,7 +3,7 @@ export type Env = {
   DB_TOKEN: string
 }
 
-type Status = 200 | 201 | 400 | 404 | 500;
+export type Status = 200 | 201 | 400 | 401 | 404 | 500;
 
 export interface ControllerResponse<T> {
   ok: boolean;
