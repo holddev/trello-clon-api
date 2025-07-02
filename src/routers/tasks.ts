@@ -8,9 +8,9 @@ export const TaskRouter = () => {
 
   router.post("/", async (c) => {
     const db = c.get("db")
-    const services = new TaskController(new TaskRepository(db))
+    const userId = c.get("userId")
     const body: newTask = await c.req.json()
-    const userId = c.req.query("userId") as string // prueba
+    const services = new TaskController(new TaskRepository(db))
 
     const result = await services.create(userId, body)
 
@@ -19,9 +19,9 @@ export const TaskRouter = () => {
 
   router.patch("/reorder", async (c) => {
     const db = c.get("db")
-    const services = new TaskController(new TaskRepository(db))
+    const userId = c.get("userId")
     const body: Partial<Task>[] = await c.req.json()
-    const userId = c.req.query("userId") as string // prueba
+    const services = new TaskController(new TaskRepository(db))
 
     const result = await services.reorderTasks(userId, body)
 
@@ -30,10 +30,10 @@ export const TaskRouter = () => {
 
   router.patch("/:id", async (c) => {
     const db = c.get("db")
-    const services = new TaskController(new TaskRepository(db))
+    const userId = c.get("userId")
     const taskId = parseInt(c.req.param("id"))
     const taskUpdated: Partial<Task> = await c.req.json()
-    const userId = c.req.query("userId") as string // prueba
+    const services = new TaskController(new TaskRepository(db))
 
     const result = await services.update(userId, taskId, taskUpdated)
 
@@ -42,9 +42,9 @@ export const TaskRouter = () => {
 
   router.delete("/:id", async (c) => {
     const db = c.get("db")
-    const services = new TaskController(new TaskRepository(db))
+    const userId = c.get("userId")
     const taskId = parseInt(c.req.param("id"))
-    const userId = c.req.query("userId") as string // prueba
+    const services = new TaskController(new TaskRepository(db))
 
     const result = await services.delete(userId, taskId)
 

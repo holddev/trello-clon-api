@@ -8,10 +8,9 @@ export const columnRouter = () => {
 
   router.get("/board/:id", async (c) => {
     const db = c.get("db");
-    const service = new ColumnController(new ColumnRepository(db));
-
+    const userId = c.get("userId")
     const boardId = parseInt(c.req.param("id"));
-    const userId = c.req.query("userId") as string //prueba    
+    const service = new ColumnController(new ColumnRepository(db));
 
     const result = await service.getAll(userId, boardId);
 
@@ -20,10 +19,10 @@ export const columnRouter = () => {
 
   router.post("/", async (c) => {
     const db = c.get("db");
-    const service = new ColumnController(new ColumnRepository(db));
-    const userId = c.req.query("userId") as string //prueba    
-
+    const userId = c.get("userId")
     const data: Column = await c.req.json();
+    const service = new ColumnController(new ColumnRepository(db));
+
     const result = await service.create(userId, data);
 
     return c.json(result, result.status);
@@ -31,10 +30,10 @@ export const columnRouter = () => {
 
   router.patch("/:id", async (c) => {
     const db = c.get("db");
-    const service = new ColumnController(new ColumnRepository(db))
-    const userId = c.req.query("userId") as string //prueba    
-
+    const userId = c.get("userId")
     const columnId = parseInt(c.req.param("id"));
+    const service = new ColumnController(new ColumnRepository(db))
+
     const data: Partial<Column> = await c.req.json();
 
     const result = await service.update(userId, columnId, data);
@@ -43,11 +42,10 @@ export const columnRouter = () => {
   });
 
   router.delete("/:id", async (c) => {
-    const db = c.get("db");
-    const service = new ColumnController(new ColumnRepository(db));
-    const userId = c.req.query("userId") as string //prueba    
-
     const columnId = parseInt(c.req.param("id"));
+    const db = c.get("db");
+    const userId = c.get("userId")
+    const service = new ColumnController(new ColumnRepository(db));
 
     const result = await service.delete(userId, columnId);
 

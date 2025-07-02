@@ -10,6 +10,7 @@ export const boardRouter = () => {
 
   router.post("/", async (c) => {
     const db = c.get("db");
+
     const service = new BoardController(new BoardRepository(db));
 
     const data: newBoard = await c.req.json()
@@ -20,8 +21,8 @@ export const boardRouter = () => {
 
   router.get("/", async (c) => {
     const db = c.get("db");
+    const userId = c.get("userId");
     const service = new BoardController(new BoardRepository(db));
-    const userId = c.req.query("userId") as string //prueba    
 
     const result = await service.findAll(userId);
 
@@ -30,9 +31,8 @@ export const boardRouter = () => {
 
   router.patch("/reorder", async (c) => {
     const db = c.get("db");
+    const userId = c.get("userId");
     const service = new BoardController(new BoardRepository(db));
-
-    const userId = c.req.query("userId") as string; //prueba
     const data: Partial<newBoard>[] = await c.req.json();
 
     const result = await service.reorder(userId, data)
@@ -41,11 +41,11 @@ export const boardRouter = () => {
   })
 
   router.get("/:id", async (c) => {
+    const id = c.req.param("id");
     const db = c.get("db");
+    const userId = c.get("userId");
     const service = new BoardController(new BoardRepository(db));
 
-    const id = c.req.param("id");
-    const userId = c.req.query("userId") as string; //prueba
 
     if (!id) return c.json({ error: "Board ID is required" }, 400);
 
@@ -55,11 +55,10 @@ export const boardRouter = () => {
   })
 
   router.patch("/:id", async (c) => {
-    const db = c.get("db");
-    const service = new BoardController(new BoardRepository(db));
-
     const id = c.req.param("id");
-    const userId = c.req.query("userId") as string; //prueba
+    const db = c.get("db");
+    const userId = c.get("userId");
+    const service = new BoardController(new BoardRepository(db));
 
     if (!id) return c.json({ error: "Board ID is required" }, 400);
     const data: Partial<newBoard> = await c.req.json();
@@ -70,11 +69,10 @@ export const boardRouter = () => {
   })
 
   router.delete("/:id", async (c) => {
-    const db = c.get("db");
-    const service = new BoardController(new BoardRepository(db));
-
     const id = c.req.param("id")
-    const userId = c.req.query("userId") as string //prueba
+    const db = c.get("db");
+    const userId = c.get("userId");
+    const service = new BoardController(new BoardRepository(db));
 
     if (!id) return c.json({ error: "Board ID is required" }, 400);
 
