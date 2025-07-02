@@ -6,45 +6,45 @@ import { boards } from "../models/boards";
 export class ColumnRepository {
   constructor(private db: LibSQLDatabase) { }
 
-  async getAll(userId: string, boardId: number) {
+  private async authorizeBoardAccess(userId: string, boardId: number) {
     const board = await this.db.select()
       .from(boards)
       .where(and(eq(boards.id, boardId), eq(boards.user_id, userId)))
       .limit(1);
 
     if (!board.length) {
-      throw new Error("No permission to view columns on this board");
+      throw new Error("Unauthorized: You do not have access to this board.");
     }
+  }
+
+  private async authorizeColumnAccess(userId: string, columnId: number) {
+    const result = await this.db.select()
+      .from(columns)
+      .innerJoin(boards, eq(columns.board_id, boards.id))
+      .where(and(eq(columns.id, columnId), eq(boards.user_id, userId)))
+      .limit(1);
+
+    if (!result.length) {
+      throw new Error("Unauthorized: You do not have access to this column.");
+    }
+  }
+
+  async getAll(userId: string, boardId: number) {
+    await this.authorizeBoardAccess(userId, boardId);
 
     const result = await this.db.select().from(columns).where(eq(columns.board_id, boardId)).orderBy(columns.position);
     return result;
   }
 
   async create(userId: string, column: NewColumn) {
-    const board = await this.db.select()
-      .from(boards)
-      .where(and(eq(boards.id, column.board_id), eq(boards.user_id, userId)))
-      .limit(1);
-
-    if (!board.length) {
-      throw new Error("No permission to create a column on this board");
-    }
+    await this.authorizeBoardAccess(userId, column.board_id);
 
     const result = await this.db.insert(columns).values(column).returning()
     return result[0];
   }
 
   async updateField(userId: string, columnId: number, data: Partial<NewColumn>) {
-    if (!data.board_id) return
-
-    const board = await this.db.select()
-      .from(boards)
-      .where(and(eq(boards.id, data.board_id), eq(boards.user_id, userId)))
-      .limit(1);
-
-    if (!board.length) {
-      throw new Error("No permission to update a column on this board");
-    }
+    await this.authorizeColumnAccess(userId, columnId);
 
     const result = await this.db.update(columns)
       .set(data)
@@ -54,21 +54,11 @@ export class ColumnRepository {
   }
 
   async delete(userId: string, columnId: number) {
-
-    const columnWithBoard = await this.db.select()
-      .from(columns)
-      .innerJoin(boards, eq(columns.board_id, boards.id))
-      .where(and(eq(columns.id, columnId), eq(boards.user_id, userId)))
-      .limit(1);
-
-    if (!columnWithBoard.length) {
-      throw new Error("No permission to delete this column");
-    }
+    await this.authorizeColumnAccess(userId, columnId);
 
     const result = await this.db.delete(columns)
       .where(eq(columns.id, columnId))
       .returning();
-
     return result[0];
   }
 
