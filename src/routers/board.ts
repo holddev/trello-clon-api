@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { BoardRepository } from "../repositories/boards";
 import { BoardController } from "../controllers/boards";
-import { User } from "../models/users";
 import { newBoard } from "../models/boards";
 
 
@@ -16,11 +15,7 @@ export const boardRouter = () => {
     const data: newBoard = await c.req.json()
     const result = await service.create(data)
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status);
-    }
-
-    return c.json(result.data, result.status);
+    return c.json(result, result.status);
   })
 
   router.get("/", async (c) => {
@@ -29,10 +24,8 @@ export const boardRouter = () => {
     const userId = c.req.query("userId") as string //prueba    
 
     const result = await service.findAll(userId);
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status);
-    }
-    return c.json(result.data, result.status);
+
+    return c.json(result, result.status);
   });
 
   router.patch("/reorder", async (c) => {
@@ -44,11 +37,7 @@ export const boardRouter = () => {
 
     const result = await service.reorder(userId, data)
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status);
-    }
-
-    return c.json({ message: result.message }, result.status);
+    return c.json(result, result.status);
   })
 
   router.get("/:id", async (c) => {
@@ -62,11 +51,7 @@ export const boardRouter = () => {
 
     const result = await service.findByIdWithDetails(userId, Number(id));
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status);
-    }
-
-    return c.json(result.data, result.status);
+    return c.json(result, result.status);
   })
 
   router.patch("/:id", async (c) => {
@@ -81,11 +66,7 @@ export const boardRouter = () => {
 
     const result = await service.updateField(userId, Number(id), data);
 
-    if (!result.ok) {
-      return c.json({ error: result.message }, result.status);
-    }
-
-    return c.json(result.data, result.status);
+    return c.json(result, result.status);
   })
 
   router.delete("/:id", async (c) => {
@@ -99,11 +80,7 @@ export const boardRouter = () => {
 
     const result = await service.delete(userId, Number(id))
 
-    if (!result.ok) {
-      return (c.json({ error: result.message }, result.status))
-    }
-
-    return (c.json(result.data, result.status))
+    return c.json(result, result.status);
   })
 
   return router;
