@@ -2,6 +2,7 @@ import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { columns, NewColumn } from "../models/columns";
 import { and, eq } from "drizzle-orm";
 import { boards } from "../models/boards";
+import { UnauthorizedError } from "../errors/error";
 
 export class ColumnRepository {
   constructor(private db: LibSQLDatabase) { }
@@ -13,7 +14,7 @@ export class ColumnRepository {
       .limit(1);
 
     if (!board.length) {
-      throw new Error("Unauthorized: You do not have access to this board.");
+      throw new UnauthorizedError("Unauthorized: You do not have access to this board.");
     }
   }
 
@@ -25,7 +26,7 @@ export class ColumnRepository {
       .limit(1);
 
     if (!result.length) {
-      throw new Error("Unauthorized: You do not have access to this column.");
+      throw new UnauthorizedError("Unauthorized: You do not have access to this column.");
     }
   }
 

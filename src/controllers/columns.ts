@@ -1,6 +1,8 @@
+import { NotFoundError } from "../errors/error";
 import { Column, NewColumn } from "../models/columns";
 import { ColumnRepository } from "../repositories/columns";
 import { ControllerResponse } from "../types/types";
+import { handleControllerError } from "../utils/utils";
 
 export class ColumnController {
   constructor(private columnsRepository: ColumnRepository) { }
@@ -8,10 +10,16 @@ export class ColumnController {
   async getAll(userId: string, boardId: number): Promise<ControllerResponse<Column[]>> {
     try {
       const result = await this.columnsRepository.getAll(userId, boardId);
+
+      if (!result || result.length === 0) {
+        throw new NotFoundError("No columns found for this board");
+      }
+
       return { ok: true, data: result, status: 200 };
     } catch (error) {
-      console.error("Error fetching columns:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      console.error("Error fetching columns:", error)
+      const { message, status } = handleControllerError(error)
+      return { ok: false, data: null, message, status };
     }
 
   }
@@ -19,10 +27,11 @@ export class ColumnController {
   async create(userId: string, data: NewColumn): Promise<ControllerResponse<Column>> {
     try {
       const result = await this.columnsRepository.create(userId, data);
-      return { ok: true, data: result, status: 201 };
+      return { ok: true, message: "Column created Successfully", data: result, status: 201 };
     } catch (error) {
       console.error("Error creating column:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { message, status } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -30,13 +39,13 @@ export class ColumnController {
     try {
       const result = await this.columnsRepository.updateField(userId, columnId, data);
       if (!result) {
-        return { ok: false, data: null, message: "Column not found", status: 404 };
+        throw new NotFoundError("Column not found");
       }
-      return { ok: true, data: result, status: 200 };
-
+      return { ok: true, message: "Board updated Successfully", data: result, status: 200 };
     } catch (error) {
       console.error("Error updating column:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { message, status } = handleControllerError(error)
+      return { ok: false, data: null, message, status };
     }
   }
 
@@ -45,12 +54,13 @@ export class ColumnController {
       const result = await this.columnsRepository.delete(userId, columnId);
 
       if (!result) {
-        return { ok: false, data: null, message: "Column not found", status: 404 };
+        throw new NotFoundError("Column not found");
       }
       return { ok: true, data: result, status: 200 };
     } catch (error) {
       console.error("Error deleting column:", error);
-      return { ok: false, data: null, message: "Internal Server Error", status: 500 };
+      const { message, status } = handleControllerError(error);
+      return { ok: false, data: null, message, status };
     }
   }
 }
