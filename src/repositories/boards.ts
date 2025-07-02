@@ -2,8 +2,7 @@ import { LibSQLDatabase } from "drizzle-orm/libsql";
 import { boards, newBoard } from "../models/boards";
 import { and, eq, sql } from "drizzle-orm";
 import { columns } from "../models/columns";
-import { tags } from "../models/tags";
-import { tasks } from "../models/tasks";
+import { tasks, tags } from "../models/tasks";
 
 export class BoardRepository {
   constructor(private db: LibSQLDatabase) { }
