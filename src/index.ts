@@ -6,8 +6,19 @@ import { userRouter } from './routers/user'
 import { boardRouter } from './routers/board'
 import { columnRouter } from './routers/columns'
 import { TaskRouter } from './routers/tasks'
+import { authenticateUser } from './middlewares/authenticateUser'
+import { cors } from 'hono/cors'
 
 const app = new Hono()
+
+app.use('*', cors({
+	origin: ['http://localhost:3000', 'https://dominio.com'],
+	allowHeaders: ['Content-Type', 'Authorization'],
+	allowMethods: ['POST', 'GET', 'PUT', 'DELETE', 'OPTIONS'],
+	exposeHeaders: ['Content-Length'],
+	maxAge: 300,
+	credentials: true,
+}))
 
 
 app.use('*', async (c, next) => {
@@ -37,9 +48,11 @@ app.get('/test', async (c) => {
 	}
 })
 
+app.use('/priv/*', authenticateUser)
+
 app.route('/users', userRouter())
-app.route('/boards', boardRouter())
-app.route('/columns', columnRouter())
-app.route('/tasks', TaskRouter())
+app.route('/priv/boards', boardRouter())
+app.route('/priv/columns', columnRouter())
+app.route('/priv/tasks', TaskRouter())
 
 export default app
