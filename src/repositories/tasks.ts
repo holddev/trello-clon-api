@@ -91,11 +91,17 @@ export class TaskRepository {
       await Promise.all(
         tagsEdit.map(async (tag) => {
           const { id, ...partialTag } = tag;
-
-          await this.db
-            .update(tags)
-            .set(partialTag)
-            .where(eq(tags.id, id));
+          if (id) {
+            await this.db
+              .update(tags)
+              .set(partialTag)
+              .where(eq(tags.id, id));
+          } else {
+            await this.db.insert(tags).values({
+              ...partialTag,
+              task_id: taskId,
+            });
+          }
         })
       );
     }
