@@ -1,2 +1,3 @@
 DB_URL=url_de_la_db
 DB_TOKEN=token_de_la_bd
+CLERK_SECRET_KEY=secreto_clerk
