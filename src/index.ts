@@ -12,7 +12,7 @@ import { cors } from 'hono/cors'
 const app = new Hono()
 
 app.use('*', cors({
-	origin: ['http://localhost:5173', 'https://trello-clon.deno.dev'],
+	origin: ['http://localhost:5173', 'https://trello-clon-demo.vercel.app'],
 	allowHeaders: ['Content-Type', 'Authorization'],
 	allowMethods: ['POST', 'GET', 'PATCH', 'DELETE', 'OPTIONS'],
 	exposeHeaders: ['Content-Length'],
